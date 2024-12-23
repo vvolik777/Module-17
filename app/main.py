@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from app.routers import user, task
+from app.backend.db import engine, Base
+from app.models import User, Task
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
