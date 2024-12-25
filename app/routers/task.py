@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.backend.db_depends import get_db
@@ -9,19 +10,19 @@ from slugify import slugify
 router = APIRouter(prefix="/task", tags=["task"])
 
 @router.get("/", response_model=list[TaskResponse])
-async def all_tasks(db: Session = Depends(get_db)):
+async def all_tasks(db: Annotated[Session, Depends(get_db)]):
     tasks = db.query(Task).all()
     return tasks
 
 @router.get("/{task_id}", response_model=TaskResponse)
-async def task_by_id(task_id: int, db: Session = Depends(get_db)):
+async def task_by_id(task_id: int, db: Annotated[Session, Depends(get_db)]):
     task = db.query(Task).filter(Task.id == task_id).first()
     if task is None:
         raise HTTPException(status_code=404, detail="Task was not found")
     return task
 
-@router.post("/create", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
-async def create_task(task: CreateTask, db: Session = Depends(get_db)):
+@router.post("/create", response_model=TaskResponse)
+async def create_task(task: CreateTask, db: Annotated[Session, Depends(get_db)]):
     user = db.query(User).filter(User.id == task.user_id).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User was not found")
@@ -40,7 +41,7 @@ async def create_task(task: CreateTask, db: Session = Depends(get_db)):
     return new_task
 
 @router.put("/update/{task_id}", response_model=TaskResponse)
-async def update_task(task_id: int, task: UpdateTask, db: Session = Depends(get_db)):
+async def update_task(task_id: int, task: UpdateTask, db: Annotated[Session, Depends(get_db)]):
     existing_task = db.query(Task).filter(Task.id == task_id).first()
     if existing_task is None:
         raise HTTPException(status_code=404, detail="Task was not found")
@@ -51,7 +52,7 @@ async def update_task(task_id: int, task: UpdateTask, db: Session = Depends(get_
     return existing_task
 
 @router.delete("/delete/{task_id}", response_model=TaskResponse)
-async def delete_task(task_id: int, db: Session = Depends(get_db)):
+async def delete_task(task_id: int, db: Annotated[Session, Depends(get_db)]):
     task_to_delete = db.query(Task).filter(Task.id == task_id).first()
     if task_to_delete is None:
         raise HTTPException(status_code=404, detail="Task was not found")
