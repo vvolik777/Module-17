@@ -1,9 +1,14 @@
 from logging.config import fileConfig
+import sys
+import os
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from app.backend.db import Base
-from app.models import User, Task
+from app.models import user, task
+print(Base.metadata.tables.keys())
+
+
 
 from alembic import context
 
@@ -21,6 +26,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
 
 
 # other values from the config, defined by the needs of env.py,
@@ -79,3 +85,5 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+
+print(f"Таблицы, зарегистрированные в Base.metadata: {Base.metadata.tables.keys()}")
